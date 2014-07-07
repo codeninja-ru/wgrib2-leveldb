@@ -10,7 +10,7 @@
 #include "grb2.h"
 #include "wgrib2.h"
 #include "fnlist.h"
-#include "leveldb/db.h"
+#include <leveldb/c.h>
 
 extern int decode, flush_mode;
 extern int file_append;
@@ -27,7 +27,6 @@ int f_leveldb(ARG1) {
 
     char new_inv_out[STRING_SIZE];
     char name[100], desc[100], unit[100];
-    FILE *out;
 
     unsigned int j;
     char vt[20],rt[20];
@@ -35,22 +34,32 @@ int f_leveldb(ARG1) {
 	
     /* initialization phase */
 
-    leveldb::DB* db;
-    leveldb::Options options;
-    options.create_if_missing = true;
+    leveldb_t *db;
+    leveldb_options_t *options;
+    leveldb_readoptions_t *roptions;
+    leveldb_writeoptions_t *woptions;
+    char *err = NULL;
 
     if (mode == -1) {
         WxText = decode = latlon = 1;
-        leveldb::Status status = leveldb::DB::Open(options, arg1, &db);
+        options = leveldb_options_create();
+        leveldb_options_set_create_if_missing(options, 1);
+        db = leveldb_open(options, arg1, &err);
+
         *local = db;
-        if (!status.ok())
+        if (err != NULL)
           fatal_error("leveldb could not open file %s", arg1);  
+
+        leveldb_free(err); err = NULL;
         return 0;
     }
 
     /* cleanup phase */
 
-    if (mode == -2) return 0;
+    if (mode == -2) {
+      leveldb_close(db);
+      return 0;
+    }
 
     /* processing phase */
 
@@ -59,7 +68,7 @@ int f_leveldb(ARG1) {
       return 0;
     }
 
-    db = (leveldb::DB *) *local;
+    db = (leveldb_t *) *local;
 
     /*Collect runtime and validtime into vt and rt*/
 
@@ -85,20 +94,29 @@ int f_leveldb(ARG1) {
 
      /* Lage if-setning rundt hele som sjekker om alt eller deler skal ut*/
 
+    woptions = leveldb_writeoptions_create();
+    char key[255];
+    char val[20];
+
     if (WxNum > 0) {
         for (j = 0; j < ndata; j++) {
             if (!UNDEFINED_VAL(data[j])) {
-              db->Put(leveldb::WriteOptions(), sprintf("data_%s_%s_%s_%s", lon[j] > 180.0 ?  lon[j]-360.0 : lon[j],lat[j], name, vt), sprintf("%s", WxLabel(data[j]));
+              sprintf(key, "data_%g_%g_%s_%s", lon[j] > 180.0 ?  lon[j]-360.0 : lon[j],lat[j], name, vt);
+              sprintf(val, "%s", WxLabel(data[j]));
+              leveldb_put(db, woptions, key, strlen(key), val, strlen(val), &err);
 	    }
 	}
     }
     else {
         for (j = 0; j < ndata; j++) {
             if (!UNDEFINED_VAL(data[j])) {
-              db->Put(leveldb::WriteOptions(), sprintf("data_%s_%s_%s_%s", lon[j] > 180.0 ?  lon[j]-360.0 : lon[j],lat[j], name, vt), sprintf("%s", WxLabel(data[j]));
+              sprintf(key, "data_%g_%g_%s_%s", lon[j] > 180.0 ?  lon[j]-360.0 : lon[j],lat[j], name, vt);
+              sprintf(val, "%lg", data[j]);
+              leveldb_put(db, woptions, key, strlen(key), val, strlen(val), &err);
 	    }
 	}
     }
+    //leveldb_close(db);
     //if (flush_mode) fflush(out);
     return 0;
 }

@@ -222,6 +222,7 @@ ifeq ($(USE_LEVELDB),1)
    leveldb:=${cwd}/leveldb-1.15.0
    leveldbsrc:=${cwd}/leveldb-1.15.0.tar.gz
    leveldblib:=${lib}/libleveldb.a
+   wLDFLAGS+=-lleveldb
 endif
 
 ifeq ($(USE_G2CLIB),1)
@@ -515,7 +516,7 @@ ${leveldblib}:
 	gunzip -f tmpleveldb.tar.gz
 	tar -xvf tmpleveldb.tar
 	rm tmpleveldb.tar
-	cd ${leveldb} && export CFLAGS="${wCPPFLAGS}" && ${MAKE} && cp libleveldb.a ${lib}
+	cd ${leveldb} && export CFLAGS="${wCPPFLAGS}" && ${MAKE} && cp libleveldb.a ${lib} && cp libleveldb.so ${lib} && cp libleveldb.so.1 ${lib}
 	cp -r ${leveldb}/include/leveldb ${cwd}/include
 
 ${nlib}:
