@@ -106,6 +106,7 @@ USE_WMO_VALIDATION=0
 
 USE_PNG=1
 USE_JASPER=1
+USE_LEVELDB=1
 
 # Add any customization comments, appears in help and config pages
 BUILD_COMMENTS=stock build
@@ -215,6 +216,12 @@ else
       wLDFLAGS+=-lgrib2c
       wCPPFLAGS+=-I$g
    endif
+endif
+
+ifeq ($(USE_LEVELDB),1)
+   leveldb:=${cwd}/leveldb-1.15.0
+   leveldbsrc:=${cwd}/leveldb-1.15.0.tar.gz
+   leveldblib:=${lib}/libleveldb.a
 endif
 
 ifeq ($(USE_G2CLIB),1)
@@ -449,10 +456,10 @@ prog=$w/wgrib2
 all:	${netcdf4src} ${hdf5src} ${prog} aux_progs/gmerge aux_progs/smallest_grib2 aux_progs/smallest_4
 
 
-${prog}:        $w/*.c $w/*.h ${jlib} ${nlib} ${zlib} ${plib} ${h5lib} ${glib} ${n4lib} ${iplib} ${gctpclib} ${proj4lib}
+${prog}:        $w/*.c $w/*.h ${jlib} ${nlib} ${zlib} ${plib} ${h5lib} ${glib} ${n4lib} ${iplib} ${gctpclib} ${leveldblib} ${proj4lib}
 	cd "$w" && export LDFLAGS="${wLDFLAGS}" && export CPPFLAGS="${wCPPFLAGS}" && ${MAKE}
 
-fast:        $w/*.c $w/*.h ${jlib} ${nlib} ${zlib} ${plib} ${h5lib} ${glib} ${n4lib} ${iplib} ${gctpclib} ${proj4lib}
+fast:        $w/*.c $w/*.h ${jlib} ${nlib} ${zlib} ${plib} ${h5lib} ${glib} ${n4lib} ${iplib} ${gctpclib} ${leveldb} ${proj4lib}
 	cd "$w" && export LDFLAGS="${wLDFLAGS}" && export CPPFLAGS="${wCPPFLAGS}" && ${MAKE} fast
 
 
@@ -502,6 +509,14 @@ ${proj4lib}:
 	tar -xvf tmpproj4.tar
 	rm tmpproj4.tar
 	cd ${proj4} && ./configure --disable-shared --prefix=${cwd} && ${MAKE} check install
+
+${leveldblib}:
+	cp ${leveldbsrc}  tmpleveldb.tar.gz
+	gunzip -f tmpleveldb.tar.gz
+	tar -xvf tmpleveldb.tar
+	rm tmpleveldb.tar
+	cd ${leveldb} && export CFLAGS="${wCPPFLAGS}" && ${MAKE} && cp libleveldb.a ${lib}
+	cp -r ${leveldb}/include/leveldb ${cwd}/include
 
 ${nlib}:
 	cp ${netcdfsrc} tmpn.tar.gz
@@ -566,6 +581,9 @@ ifeq ($(USE_NETCDF4),1)
 endif
 ifeq ($(USE_PROJ4),1)
 	[ -d "${proj4}" ] && rm -rf ${proj4}
+endif
+ifeq ($(USE_LEVELDB),1)
+	[ -d "${leveldb}" ] && rm -rf ${leveldb}
 endif
 	cd aux_progs && ${MAKE} clean -f gmerge.make
 	cd aux_progs && ${MAKE} clean -f smallest_grib2.make

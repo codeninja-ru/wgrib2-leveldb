@@ -235,6 +235,7 @@ int f_ieee(int mode, unsigned char **sec, float *data, unsigned int ndata, char 
 int f_ijbox(int mode, unsigned char **sec, float *data, unsigned int ndata, char *inv, void **local, const char *arg1, const char *arg2, const char *arg3, const char *arg4);
 int f_ijsmall_grib(int mode, unsigned char **sec, float *data, unsigned int ndata, char *inv, void **local, const char *arg1, const char *arg2, const char *arg3);
 int f_irr_grid(int mode, unsigned char **sec, float *data, unsigned int ndata, char *inv, void **local, const char *arg1, const char *arg2, const char *arg3);
+int f_leveldb(int mode, unsigned char **sec, float *data, unsigned int ndata, char *inv, void **local, const char *arg1);
 int f_lola(int mode, unsigned char **sec, float *data, unsigned int ndata, char *inv, void **local, const char *arg1, const char *arg2, const char *arg3, const char *arg4);
 int f_merge_fcst(int mode, unsigned char **sec, float *data, unsigned int ndata, char *inv, void **local, const char *arg1, const char *arg2);
 int f_mysql(int mode, unsigned char **sec, float *data, unsigned int ndata, char *inv, void **local, const char *arg1, const char *arg2, const char *arg3, const char *arg4, const char *arg5);
