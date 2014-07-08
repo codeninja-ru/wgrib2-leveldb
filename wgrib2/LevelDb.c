@@ -98,10 +98,15 @@ int f_leveldb(ARG1) {
     char key[255];
     char val[20];
 
+    sprintf(key, "vars/%s", name);
+    leveldb_put(db, woptions, key, strlen(key), name, strlen(name), &err);
+    leveldb_put(db, woptions, "start_time", 10, rt, strlen(rt), &err);
+
+
     if (WxNum > 0) {
         for (j = 0; j < ndata; j++) {
             if (!UNDEFINED_VAL(data[j])) {
-              sprintf(key, "data_%g_%g_%s_%s", lon[j] > 180.0 ?  lon[j]-360.0 : lon[j],lat[j], name, vt);
+              sprintf(key, "data/%g/%g/%s/%s", lon[j] > 180.0 ?  lon[j]-360.0 : lon[j],lat[j], name, vt);
               sprintf(val, "%s", WxLabel(data[j]));
               leveldb_put(db, woptions, key, strlen(key), val, strlen(val), &err);
 	    }
@@ -110,7 +115,7 @@ int f_leveldb(ARG1) {
     else {
         for (j = 0; j < ndata; j++) {
             if (!UNDEFINED_VAL(data[j])) {
-              sprintf(key, "data_%g_%g_%s_%s", lon[j] > 180.0 ?  lon[j]-360.0 : lon[j],lat[j], name, vt);
+              sprintf(key, "data/%g/%g/%s/%s", lon[j] > 180.0 ?  lon[j]-360.0 : lon[j],lat[j], name, vt);
               sprintf(val, "%lg", data[j]);
               leveldb_put(db, woptions, key, strlen(key), val, strlen(val), &err);
 	    }
