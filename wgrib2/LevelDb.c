@@ -101,6 +101,7 @@ int f_leveldb(ARG1) {
     sprintf(key, "vars/%s", name);
     leveldb_put(db, woptions, key, strlen(key), name, strlen(name), &err);
     leveldb_put(db, woptions, "start_time", 10, rt, strlen(rt), &err);
+    leveldb_put(db, woptions, "end_time", 8, vt, strlen(vt), &err);
 
 
     if (WxNum > 0) {
