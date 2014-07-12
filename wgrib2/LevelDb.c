@@ -44,6 +44,8 @@ int f_leveldb(ARG1) {
         WxText = decode = latlon = 1;
         options = leveldb_options_create();
         leveldb_options_set_create_if_missing(options, 1);
+        leveldb_options_set_write_buffer_size(options, 16 * 1048576);
+        leveldb_options_set_block_size(options, 2 * 1048576);
         db = leveldb_open(options, arg1, &err);
 
         *local = db;
