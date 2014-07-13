@@ -47,18 +47,26 @@ int f_leveldb(ARG1) {
         leveldb_options_set_write_buffer_size(options, 64 * 1048576);
         leveldb_options_set_block_size(options, 2 * 1048576);
         db = leveldb_open(options, arg1, &err);
+        fprintf(stderr,"Open file %s", arg1);
 
         *local = db;
-        if (err != NULL)
+        if (err != NULL) {
           fatal_error("leveldb could not open file %s", arg1);  
+        }
 
-        leveldb_free(err); err = NULL;
+        leveldb_free(err); 
+        err = NULL;
+
         return 0;
     }
+
+    db = (leveldb_t *) *local;
 
     /* cleanup phase */
 
     if (mode == -2) {
+      fprintf(stderr,"Close file %s", arg1);
+      leveldb_options_destroy(options);
       leveldb_close(db);
       return 0;
     }
@@ -70,7 +78,6 @@ int f_leveldb(ARG1) {
       return 0;
     }
 
-    db = (leveldb_t *) *local;
 
     /*Collect runtime and validtime into vt and rt*/
 
@@ -90,40 +97,69 @@ int f_leveldb(ARG1) {
     if (strcmp(new_inv_out, "reserved")==0) return 0;
 //    getName(sec, mode, NULL, name, desc, unit);
     getExtName(sec, mode, NULL, name, desc, unit,".","_");
-//	fprintf(stderr,"Start processing of %s at %s\n", name, new_inv_out);
-//	fprintf(stderr,"Gridpoints in data: %d\n", ndata);
-//	fprintf(stderr,"Description: %s, Unit %s\n", desc,unit);
+//    fprintf(stderr,"Start processing of %s at %s\n", name, new_inv_out);
+//    fprintf(stderr,"Gridpoints in data: %d\n", ndata);
+//    fprintf(stderr,"Description: %s, Unit %s\n", desc,unit);
 
      /* Lage if-setning rundt hele som sjekker om alt eller deler skal ut*/
 
-    woptions = leveldb_writeoptions_create();
     char key[255];
     char val[20];
 
+    woptions = leveldb_writeoptions_create();
+    leveldb_writeoptions_set_sync(woptions, 0);
+
     sprintf(key, "vars/%s", name);
     leveldb_put(db, woptions, key, strlen(key), name, strlen(name), &err);
+    if (err != NULL) {
+      fatal_error("error: %s", err);  
+    }
+    leveldb_free(err); 
+    err = NULL;
     leveldb_put(db, woptions, "start_time", 10, rt, strlen(rt), &err);
+    if (err != NULL) {
+      fatal_error("error: %s", err);  
+    }
+    leveldb_free(err); 
+    err = NULL;
     leveldb_put(db, woptions, "end_time", 8, vt, strlen(vt), &err);
+    if (err != NULL) {
+      fatal_error("error: %s", err);  
+    }
+    leveldb_free(err); 
+    err = NULL;
 
 
     if (WxNum > 0) {
         for (j = 0; j < ndata; j++) {
             if (!UNDEFINED_VAL(data[j])) {
-              sprintf(key, "data/%g/%g/%s/%s", lon[j] > 180.0 ?  lon[j]-360.0 : lon[j],lat[j], name, vt);
+              sprintf(key, "data/%g/%g/%s/%s", lon[j] > 180.0 ?  lon[j]-360.0 : lon[j],lat[j], vt, name);
               sprintf(val, "%s", WxLabel(data[j]));
               leveldb_put(db, woptions, key, strlen(key), val, strlen(val), &err);
-	    }
-	}
-    }
-    else {
+              if (err != NULL) {
+                fatal_error("error: %s", err);  
+              }
+              leveldb_free(err); 
+              err = NULL;
+
+            }
+        }
+    } else {
         for (j = 0; j < ndata; j++) {
             if (!UNDEFINED_VAL(data[j])) {
-              sprintf(key, "data/%g/%g/%s/%s", lon[j] > 180.0 ?  lon[j]-360.0 : lon[j],lat[j], name, vt);
+              sprintf(key, "data/%g/%g/%s/%s", lon[j] > 180.0 ?  lon[j]-360.0 : lon[j],lat[j], vt, name);
               sprintf(val, "%lg", data[j]);
               leveldb_put(db, woptions, key, strlen(key), val, strlen(val), &err);
-	    }
-	}
+              if (err != NULL) {
+                fatal_error("error: %s", err);  
+              }
+              leveldb_free(err); 
+              err = NULL;
+            }
+        }
     }
+
+    leveldb_writeoptions_destroy(woptions);
     //leveldb_close(db);
     //if (flush_mode) fflush(out);
     return 0;
