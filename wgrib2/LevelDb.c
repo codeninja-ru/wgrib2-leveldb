@@ -160,7 +160,5 @@ int f_leveldb(ARG1) {
     }
 
     leveldb_writeoptions_destroy(woptions);
-    //leveldb_close(db);
-    //if (flush_mode) fflush(out);
     return 0;
 }
