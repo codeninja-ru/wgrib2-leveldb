@@ -47,7 +47,6 @@ int f_leveldb(ARG1) {
         leveldb_options_set_write_buffer_size(options, 64 * 1048576);
         leveldb_options_set_block_size(options, 2 * 1048576);
         db = leveldb_open(options, arg1, &err);
-        fprintf(stderr,"Open file %s", arg1);
 
         *local = db;
         if (err != NULL) {
@@ -65,7 +64,6 @@ int f_leveldb(ARG1) {
     /* cleanup phase */
 
     if (mode == -2) {
-      fprintf(stderr,"Close file %s", arg1);
       leveldb_options_destroy(options);
       leveldb_close(db);
       return 0;
