@@ -20,7 +20,7 @@ extern double *lat, *lon;
 extern int decode, latlon;
 
 /*
- * HEADER:100:leveldb:output:1:make comma separated file, X=file (WxText enabled)
+ * HEADER:100:leveldb:output:1:make leveldb file, X=file (WxText enabled)
  */
 
 int f_leveldb(ARG1) {
@@ -107,8 +107,9 @@ int f_leveldb(ARG1) {
     woptions = leveldb_writeoptions_create();
     leveldb_writeoptions_set_sync(woptions, 0);
 
-    sprintf(key, "vars/%s", name);
-    leveldb_put(db, woptions, key, strlen(key), name, strlen(name), &err);
+    sprintf(key, "var/%s", name);
+    fprintf(val, "%s unit %s", desc, unit);
+    leveldb_put(db, woptions, key, strlen(key), val, strlen(val), &err);
     if (err != NULL) {
       fatal_error("error: %s", err);  
     }
@@ -126,7 +127,6 @@ int f_leveldb(ARG1) {
     }
     leveldb_free(err); 
     err = NULL;
-
 
     if (WxNum > 0) {
         for (j = 0; j < ndata; j++) {

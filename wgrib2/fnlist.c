@@ -230,7 +230,7 @@ struct function functions[] = {
    {"ijbox",f_ijbox, output, 4, "grid values in bounding box X=i1:i2[:di] Y=j1:j2[:dj] Z=file A=[bin|text|spread]", 100},
    {"ijsmall_grib",f_ijsmall_grib, output, 3, "make small domain grib file X=ix0:ix1 Y=iy0:iy1 Z=file (beta)", 100},
    {"irr_grid",f_irr_grid, output, 3, "make irregular grid, nearest neighbor, X=lon-lat list Y=radius (km) Z=output grib file", 100},
-   {"leveldb",f_leveldb, output, 1, "make comma separated file, X=file (WxText enabled)", 100},
+   {"leveldb",f_leveldb, output, 1, "make leveldb file, X=file (WxText enabled)", 100},
    {"lola",f_lola, output, 4, "lon-lat grid values X=lon0:nlon:dlon Y=lat0:nlat:dlat Z=file A=[bin|text|spread|grib]", 100},
    {"merge_fcst",f_merge_fcst, output, 2, "normalize NCEP-type ave/acc X=number to intervals to merge Y=output grib file", 100},
    {"mysql",f_mysql, output, 5, "H=[host] U=[user] P=[password] D=[db] T=[table] (alpha)", 100},
