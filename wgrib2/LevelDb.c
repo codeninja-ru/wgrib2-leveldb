@@ -102,13 +102,13 @@ int f_leveldb(ARG1) {
      /* Lage if-setning rundt hele som sjekker om alt eller deler skal ut*/
 
     char key[255];
-    char val[20];
+    char val[255];
 
     woptions = leveldb_writeoptions_create();
     leveldb_writeoptions_set_sync(woptions, 0);
 
     sprintf(key, "var/%s", name);
-    fprintf(val, "%s unit %s", desc, unit);
+    sprintf(val, "%s unit %s", desc, unit);
     leveldb_put(db, woptions, key, strlen(key), val, strlen(val), &err);
     if (err != NULL) {
       fatal_error("error: %s", err);  
