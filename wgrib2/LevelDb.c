@@ -23,16 +23,6 @@ extern int decode, latlon;
  * HEADER:100:leveldb:output:1:make leveldb file, X=file (WxText enabled)
  */
 
-void removeChar(char *str, char garbage) {
-
-    char *src, *dst;
-    for (src = dst = str; *src != '\0'; src++) {
-        *dst = *src;
-        if (*dst != garbage) dst++;
-    }
-    *dst = '\0';
-}
-
 int f_leveldb(ARG1) {
 
     char new_inv_out[STRING_SIZE];
@@ -120,7 +110,6 @@ int f_leveldb(ARG1) {
     }
 
     sprintf(var_name, "%s_%s", name, new_inv_out);
-    removeChar(var_name, ' ');
 
     woptions = leveldb_writeoptions_create();
     leveldb_writeoptions_set_sync(woptions, 0);
