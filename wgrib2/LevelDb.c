@@ -23,6 +23,16 @@ extern int decode, latlon;
  * HEADER:100:leveldb:output:1:make leveldb file, X=file (WxText enabled)
  */
 
+void removeChar(char *str, char garbage) {
+
+    char *src, *dst;
+    for (src = dst = str; *src != '\0'; src++) {
+        *dst = *src;
+        if (*dst != garbage) dst++;
+    }
+    *dst = '\0';
+}
+
 int f_leveldb(ARG1) {
 
     char new_inv_out[STRING_SIZE];
@@ -103,11 +113,15 @@ int f_leveldb(ARG1) {
 
     char key[255];
     char val[255];
+    char var_name[125];
+
+    sprintf(var_name, "%s_%s", name, new_inv_out);
+    removeChar(var_name, " ");
 
     woptions = leveldb_writeoptions_create();
     leveldb_writeoptions_set_sync(woptions, 0);
 
-    sprintf(key, "var/%s", name);
+    sprintf(key, "var/%s", var_name);
     sprintf(val, "%s unit %s", desc, unit);
     leveldb_put(db, woptions, key, strlen(key), val, strlen(val), &err);
     if (err != NULL) {
@@ -131,7 +145,7 @@ int f_leveldb(ARG1) {
     if (WxNum > 0) {
         for (j = 0; j < ndata; j++) {
             if (!UNDEFINED_VAL(data[j])) {
-              sprintf(key, "data/%g/%g/%s/%s", lon[j] > 180.0 ?  lon[j]-360.0 : lon[j],lat[j], vt, name);
+              sprintf(key, "data/%g/%g/%s/%s", lon[j] > 180.0 ?  lon[j]-360.0 : lon[j],lat[j], vt, var_name);
               sprintf(val, "%s", WxLabel(data[j]));
               leveldb_put(db, woptions, key, strlen(key), val, strlen(val), &err);
               if (err != NULL) {
@@ -145,7 +159,7 @@ int f_leveldb(ARG1) {
     } else {
         for (j = 0; j < ndata; j++) {
             if (!UNDEFINED_VAL(data[j])) {
-              sprintf(key, "data/%g/%g/%s/%s", lon[j] > 180.0 ?  lon[j]-360.0 : lon[j],lat[j], vt, name);
+              sprintf(key, "data/%g/%g/%s/%s", lon[j] > 180.0 ?  lon[j]-360.0 : lon[j],lat[j], vt, var_name);
               sprintf(val, "%lg", data[j]);
               leveldb_put(db, woptions, key, strlen(key), val, strlen(val), &err);
               if (err != NULL) {
