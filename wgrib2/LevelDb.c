@@ -116,7 +116,7 @@ int f_leveldb(ARG1) {
     char var_name[125];
 
     sprintf(var_name, "%s_%s", name, new_inv_out);
-    removeChar(var_name, " ");
+    removeChar(var_name, ' ');
 
     woptions = leveldb_writeoptions_create();
     leveldb_writeoptions_set_sync(woptions, 0);
