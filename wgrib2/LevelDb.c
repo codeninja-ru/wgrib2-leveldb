@@ -115,6 +115,10 @@ int f_leveldb(ARG1) {
     char val[255];
     char var_name[125];
 
+    if (strcmp(new_inv_out, "surface") == 0) {
+      new_inv_out = "surf";
+    }
+
     sprintf(var_name, "%s_%s", name, new_inv_out);
     removeChar(var_name, ' ');
 
